@@ -20,7 +20,7 @@ export default function Header() {
          </Button>
         
          <div className='flex gap-2'>
-         <Button className='w-12 h-10 hidden sm:inline' color='red' pill>
+         <Button className='w-12 h-10 hidden sm:inline border' color='black' pill>
           <FaMoon/>
          </Button>
         <Link to='/sign-in'>
