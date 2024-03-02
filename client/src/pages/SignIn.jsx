@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
 import {Label, TextInput,Button, Alert,Spinner} from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
+import {useDispatch,useSelector} from 'react-redux'
+import { signInStart,signInSuccess,signInFailure } from '../redux/user/userSlice'
+
 
 export default function SignIn() {
   const navigate = useNavigate(); // Access navigate function from react-router-dom
   const [formData, setFormData] = useState({}); // State for form data
-  const [errorMessage, setErrorMessage] = useState(null); // State for error message
-  const [loading, setLoading] = useState(false); // State for loading indicator
+  const {loading, error: errorMessage} = useSelector(state => state.user)
+  const dispatch = useDispatch();
 
   // Handle changes in form inputs
   const handleChange = (e) => {
@@ -19,12 +22,10 @@ export default function SignIn() {
 
     // Check if required fields are filled out
     if ( !formData.email || !formData.password)
-      return setErrorMessage("Please fill out all the fields");
+      return dispatch(signInFailure('Please fill out all the fields'))
 
     try {
-      setLoading(true); // Set loading state to true
-      setErrorMessage(null); // Clear any previous error message
-
+     dispatch(signInStart())
       // Send form data to backend API for signip
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
@@ -37,18 +38,15 @@ export default function SignIn() {
 
       // Check if signup was unsuccessful
       if (data.success === false) {
-        return setErrorMessage(data.message); // Set error message from backend
+        dispatch(signInFailure(data.message))
       }
-
-      setLoading(false); // Set loading state to false
-
       // If signup was successful and response is okay, navigate to sign-in page
       if (res.ok) {
+        dispatch(signInSuccess(data))
         navigate('/');
       }
-    } catch (error) {
-      setErrorMessage(error.message); // Set error message if an error occurs
-      setLoading(false); // Set loading state to false
+    } catch(error) {
+      dispatch(signInFailure(error.message))
     }
   };
 
